@@ -1,5 +1,5 @@
 import Image from "next/image";
-import QuizGenerator from "./features/chat/QuizGenerator";
+import QuizGenerator from "./features/quiz/QuizGenerator";
 
 export default function Home() {
 
