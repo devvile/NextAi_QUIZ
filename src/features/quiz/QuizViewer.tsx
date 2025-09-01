@@ -1,4 +1,3 @@
-// components/QuizViewer.tsx
 "use client"
 import { useEffect, useState } from 'react';
 import { useQuizManagement } from '@/hooks/useQuizManagement';
@@ -13,13 +12,14 @@ const QuizViewer = ({ quizId }: QuizViewerProps) => {
   const { fetchQuiz, isLoading, error } = useQuizManagement();
   const [quiz, setQuiz] = useState<QuizWithQuestions | null>(null);
   const [answers, setAnswers] = useState<{ [key: string]: number }>({});
-  const [showResults, setShowResults] = useState(false);
 
   useEffect(() => {
     const loadQuiz = async () => {
       try {
         const quizData = await fetchQuiz(quizId);
-        setQuiz(quizData);
+        if (quizData) {
+          setQuiz(quizData);
+        }
       } catch (err) {
         console.error('Failed to load quiz:', err);
       }
@@ -28,28 +28,9 @@ const QuizViewer = ({ quizId }: QuizViewerProps) => {
     loadQuiz();
   }, [quizId]);
 
-  const handleAnswerChange = (questionId: string, answerIndex: number) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: answerIndex
-    }));
-  };
-
-  const calculateScore = () => {
-    if (!quiz) return 0;
-    
-    let correct = 0;
-    quiz.questions.forEach(question => {
-      if (answers[question.id] === question.correct_answer) {
-        correct++;
-      }
-    });
-    
-    return correct;
-  };
 
   const handleSubmit = () => {
-    setShowResults(true);
+    //setShowResults(true);
   };
 
   if (isLoading) {
@@ -63,10 +44,7 @@ const QuizViewer = ({ quizId }: QuizViewerProps) => {
   if (!quiz) {
     return <div className="p-4">Quiz not found</div>;
   }
-
-  const score = calculateScore();
-  const totalQuestions = quiz.questions.length;
-
+  
   return (
     <div className="max-w-3xl mx-auto p-6">
       {/* Quiz Header */}
@@ -88,28 +66,22 @@ const QuizViewer = ({ quizId }: QuizViewerProps) => {
             <FormControl component="fieldset" className="w-full">
               <RadioGroup
                 value={answers[question.id] ?? ''}
-                onChange={(e) => handleAnswerChange(question.id, parseInt(e.target.value))}
+                
               >
                 {question.options.map((option, optionIndex) => (
                   <FormControlLabel
                     key={optionIndex}
                     value={optionIndex}
+                    disabled={true}
                     control={<Radio />}
                     label={option}
-                    className={showResults ? (
-                      optionIndex === question.correct_answer 
-                        ? 'text-green-600 font-medium' 
-                        : answers[question.id] === optionIndex && optionIndex !== question.correct_answer
-                        ? 'text-red-600'
-                        : ''
-                    ) : ''}
                   />
                 ))}
               </RadioGroup>
             </FormControl>
 
             {/* Show explanation after submission */}
-            {showResults && question.explanation && (
+            {question.explanation && (
               <div className="mt-4 p-3 bg-blue-50 rounded-lg">
                 <p className="text-sm text-blue-800">
                   <strong>Explanation:</strong> {question.explanation}
@@ -118,30 +90,6 @@ const QuizViewer = ({ quizId }: QuizViewerProps) => {
             )}
           </div>
         ))}
-      </div>
-
-      {/* Submit/Results */}
-      <div className="mt-8 text-center">
-        {!showResults ? (
-          <Button 
-            variant="contained" 
-            size="large"
-            onClick={handleSubmit}
-            disabled={Object.keys(answers).length !== totalQuestions}
-          >
-            Submit Quiz
-          </Button>
-        ) : (
-          <div className="p-6 bg-gray-50 rounded-lg">
-            <h2 className="text-2xl font-bold mb-2">Quiz Complete!</h2>
-            <p className="text-xl">
-              You scored <span className="font-bold text-green-600">{score}</span> out of {totalQuestions}
-            </p>
-            <p className="text-gray-600">
-              ({Math.round((score / totalQuestions) * 100)}%)
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

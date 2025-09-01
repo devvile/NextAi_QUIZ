@@ -13,6 +13,7 @@ export async function GET(
                 { status: 404 }
             )
         }
+        return NextResponse.json(quiz)
     } catch (error) {
         console.error("Failed to fetch quiz", error);
         return NextResponse.json(
