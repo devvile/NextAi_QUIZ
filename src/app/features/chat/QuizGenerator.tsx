@@ -6,10 +6,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from "@mui/material";
 
-
 type levels = "beginner" | "intermediate" | "upper-intermediate" | "expert"
 const LEVELS: levels[] = ["beginner", "intermediate", "upper-intermediate", "expert"];
-
 
 const quizFormSchema = z.object({
     category: z.string()
@@ -26,9 +24,10 @@ type QuizFormData = z.infer<typeof quizFormSchema>;
 
 const QuizGenerator = () => {
     const [generatedQuiz, setGeneratedQuiz] = useState<string>("");
+    const [quizId, setQuizId] = useState<string | null>(null);
+    const [saveToDatabase, setSaveToDatabase] = useState<boolean>(true);
     const { generateQuiz, isLoading, error } = useClaude();
     const { register, handleSubmit, formState: { errors }, reset } = useForm<QuizFormData>(
-
         {
             resolver: zodResolver(quizFormSchema),
             defaultValues: {
@@ -40,14 +39,22 @@ const QuizGenerator = () => {
 
     const onSubmit = async (data: QuizFormData) => {
         try {
-            const quiz = await generateQuiz({
+            const result = await generateQuiz({
                 category: data.category,
                 level: data.level,
                 numberOfQuestions: data.numberOfQuestions
-            })
-             const quizObject = JSON.parse(quiz);
-             console.log(quizObject)
-            setGeneratedQuiz(quiz);
+            }, saveToDatabase);
+
+            // Validate JSON before setting state
+            const quizObject = JSON.parse(result.response);
+            console.log('Generated quiz:', quizObject);
+            
+            setGeneratedQuiz(result.response);
+            setQuizId(result.quizId || null);
+            
+            if (result.quizId) {
+                console.log('Quiz saved to database with ID:', result.quizId);
+            }
         } catch (err) {
             console.error("Failed to generate quiz:", err)
         }
@@ -69,6 +76,7 @@ const QuizGenerator = () => {
                     <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>
                 )}
             </div>
+            
             {/*Level*/}
             <div className="my-2">
                 <label className="block text-sm font-medium mb-2">Level</label>
@@ -81,12 +89,12 @@ const QuizGenerator = () => {
                             {level.charAt(0).toUpperCase() + level.slice(1).replace('-', ' ')}
                         </option>
                     ))}
-
                 </select>
                 {errors.level && (
                     <p className="text-red-500 text-sm mt-1">{errors.level.message}</p>
                 )}
             </div>
+            
             <div className="my-2">
                 <label className="block text-sm font-medium mb-2">Number Of Questions</label>
                 <input
@@ -102,6 +110,20 @@ const QuizGenerator = () => {
                     <p className="text-red-500 text-sm mt-1">{errors.numberOfQuestions.message}</p>
                 )}
             </div>
+
+            {/* Save to Database Option */}
+            <div className="my-4">
+                <label className="flex items-center">
+                    <input
+                        type="checkbox"
+                        checked={saveToDatabase}
+                        onChange={(e) => setSaveToDatabase(e.target.checked)}
+                        className="mr-2"
+                    />
+                    <span className="text-sm font-medium">Save quiz to database</span>
+                </label>
+            </div>
+            
             {/*Submit button*/}
             <Button type="submit" variant="contained" disabled={isLoading}>
                 {isLoading ? 'Generating Quiz...' : 'Generate Quiz'}
@@ -112,6 +134,13 @@ const QuizGenerator = () => {
         {error && (
             <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
                 Error: {error}
+            </div>
+        )}
+
+        {/* Success message */}
+        {quizId && (
+            <div className="mt-4 p-4 bg-green-100 text-green-700 rounded-lg">
+                ✅ Quiz saved successfully! Quiz ID: {quizId}
             </div>
         )}
 

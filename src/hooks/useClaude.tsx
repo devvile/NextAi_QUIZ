@@ -3,6 +3,7 @@ import { useState } from "react";
 interface ClaudeApiResponse {
     response?: string;
     error?: string;
+    quizId?: string;
 }
 
 interface QuizParams {
@@ -11,12 +12,24 @@ interface QuizParams {
     numberOfQuestions: number;
 }
 
+interface GenerateQuizResult {
+    response: string;
+    quizId?: string;
+}
 
 const useClaude = () => {
     const [isLoading, setIsLoading] = useState<boolean>(false)
     const [error, setError] = useState<null | string>(null)
 
-    const sendMessage = async (message: string) => {
+    const sendMessage = async (
+        message: string, 
+        options?: {
+            saveToDb?: boolean;
+            category?: string;
+            level?: string;
+            numberOfQuestions?: number;
+        }
+    ) => {
         setIsLoading(true);
         setError(null);
         try {
@@ -25,7 +38,10 @@ const useClaude = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message })
+                body: JSON.stringify({ 
+                    message,
+                    ...options
+                })
             })
 
             if (!response.ok) {
@@ -42,7 +58,10 @@ const useClaude = () => {
                 throw new Error('No response received from Claude');
             }
 
-            return data.response;
+            return {
+                response: data.response,
+                quizId: data.quizId
+            };
 
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
@@ -55,12 +74,11 @@ const useClaude = () => {
 
     }
 
-    const generateQuiz = async (params: QuizParams): Promise<string> => {
+    const generateQuiz = async (params: QuizParams, saveToDb: boolean = true): Promise<GenerateQuizResult> => {
         const { category, level, numberOfQuestions } = params;
 
-        const prompt = `Generate ${numberOfQuestions} ${level} level questions about ${category}. 
-        
-        Format the response as JSON with this structure:
+        const prompt = `Generate ${numberOfQuestions} ${level} level questions about ${category}.
+                  Format the response as JSON with this structure:
         {
           "questions": [
             {
@@ -72,10 +90,15 @@ const useClaude = () => {
             }
           ]
         }
-        
-        Make sure the JSON is valid and properly formatted and after i get it as a response I can use JSON.parse(reponse) on it. Don't add any extra characters expect JSON structure for example: dont use extra quotations or word "json" expect JSON structure`;
+                 
+        Make sure the JSON is valid and properly formatted and after i get it as a response I can use JSON.parse(response) on it. Don't add any extra characters except JSON structure for example: don't use extra quotations or word "json" except JSON structure`;
 
-        return await sendMessage(prompt);
+        return await sendMessage(prompt, {
+            saveToDb,
+            category,
+            level,
+            numberOfQuestions
+        });
     };
 
     return {
