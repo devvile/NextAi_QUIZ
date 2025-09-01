@@ -1,9 +1,8 @@
-// components/QuizViewer.tsx
 "use client"
 import { useEffect, useState } from 'react';
 import { useQuizManagement } from '@/hooks/useQuizManagement';
 import { QuizWithQuestions } from '@/types/database';
-import { Radio, RadioGroup, FormControlLabel, FormControl } from '@mui/material';
+import { Radio, RadioGroup, FormControlLabel, FormControl, LinearProgress } from '@mui/material';
 
 interface QuizViewerProps {
   quizId: string;
@@ -29,7 +28,7 @@ const QuizViewer = ({ quizId }: QuizViewerProps) => {
   }, [quizId]);
 
   if (isLoading) {
-    return <div className="p-4">Loading quiz...</div>;
+    return <div className="max-w-4xl m-auto  p-6 "><LinearProgress /></div>;
   }
 
   if (error) {
@@ -39,7 +38,7 @@ const QuizViewer = ({ quizId }: QuizViewerProps) => {
   if (!quiz) {
     return <div className="p-4">Quiz not found</div>;
   }
-  
+
   return (
     <div className="max-w-3xl mx-auto p-6">
       {/* Quiz Header */}
@@ -60,19 +59,19 @@ const QuizViewer = ({ quizId }: QuizViewerProps) => {
             <h3 className="text-lg font-semibold mb-4">
               {index + 1}. {question.question_text}
             </h3>
-            
+
             <FormControl component="fieldset" className="w-full">
               <RadioGroup value={question.correct_answer}>
                 {question.options.map((option, optionIndex) => {
                   const isCorrect = optionIndex === question.correct_answer;
-                  
+
                   return (
                     <FormControlLabel
                       key={optionIndex}
                       value={optionIndex}
                       disabled={true}
                       control={
-                        <Radio 
+                        <Radio
                           sx={{
                             color: isCorrect ? '#22c55e' : undefined,
                             '&.Mui-checked': {

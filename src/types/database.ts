@@ -1,5 +1,7 @@
+// types/database.ts
 export interface Quiz {
   id: string;
+  quiz_name?: string; // New field
   category: string;
   level: 'beginner' | 'intermediate' | 'upper-intermediate' | 'expert';
   number_of_questions: number;

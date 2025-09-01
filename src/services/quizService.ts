@@ -1,9 +1,9 @@
-// services/quizService.ts
 import { supabase } from '@/lib/supabase';
 import { Quiz, Question, QuizWithQuestions, ClaudeQuizResponse } from '@/types/database';
 
 export class QuizService {
   static async saveQuiz(
+    quizName: string, // New parameter
     category: string,
     level: string,
     numberOfQuestions: number,
@@ -14,6 +14,7 @@ export class QuizService {
     const { data: quizData, error: quizError } = await supabase
       .from('quizzes')
       .insert({
+        quiz_name: quizName, 
         category,
         level,
         number_of_questions: numberOfQuestions,

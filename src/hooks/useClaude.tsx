@@ -1,3 +1,4 @@
+// hooks/useClaude.ts
 import { useState } from "react";
 
 interface ClaudeApiResponse {
@@ -25,6 +26,7 @@ const useClaude = () => {
         message: string, 
         options?: {
             saveToDb?: boolean;
+            quizName?: string; // New field
             category?: string;
             level?: string;
             numberOfQuestions?: number;
@@ -74,7 +76,7 @@ const useClaude = () => {
 
     }
 
-    const generateQuiz = async (params: QuizParams, saveToDb: boolean = true): Promise<GenerateQuizResult> => {
+    const generateQuiz = async (params: QuizParams, saveToDb: boolean = false): Promise<GenerateQuizResult> => {
         const { category, level, numberOfQuestions } = params;
 
         const prompt = `Generate ${numberOfQuestions} ${level} level questions about ${category}.
@@ -101,11 +103,66 @@ const useClaude = () => {
         });
     };
 
+    const saveQuizWithName = async (
+        quizName: string,
+        category: string,
+        level: string,
+        numberOfQuestions: number,
+        response: string
+    ): Promise<GenerateQuizResult> => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const apiResponse = await fetch("/api/claude", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    message: response, // Use the actual quiz response, not empty string
+                    saveToDb: true,
+                    quizName,
+                    category,
+                    level,
+                    numberOfQuestions
+                })
+            })
+
+            if (!apiResponse.ok) {
+                throw new Error(`HTTP error! status: ${apiResponse.status}`);
+            }
+
+            const data = await apiResponse.json();
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            if (!data.response) {
+                throw new Error('No response received from Claude');
+            }
+
+            return {
+                response: data.response,
+                quizId: data.quizId
+            };
+
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+            setError(errorMessage);
+            throw err
+        }
+        finally {
+            setIsLoading(false);
+        }
+    };
+
     return {
         sendMessage,
         isLoading,
         error,
         generateQuiz,
+        saveQuizWithName, // New method
         clearError: () => setError(null)
     }
 }
