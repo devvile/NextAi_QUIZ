@@ -48,10 +48,10 @@ const QuizGenerator = () => {
             // Validate JSON before setting state
             const quizObject = JSON.parse(result.response);
             console.log('Generated quiz:', quizObject);
-            
+
             setGeneratedQuiz(result.response);
             setQuizId(result.quizId || null);
-            
+
             if (result.quizId) {
                 console.log('Quiz saved to database with ID:', result.quizId);
             }
@@ -76,7 +76,7 @@ const QuizGenerator = () => {
                     <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>
                 )}
             </div>
-            
+
             {/*Level*/}
             <div className="my-2">
                 <label className="block text-sm font-medium mb-2">Level</label>
@@ -94,7 +94,7 @@ const QuizGenerator = () => {
                     <p className="text-red-500 text-sm mt-1">{errors.level.message}</p>
                 )}
             </div>
-            
+
             <div className="my-2">
                 <label className="block text-sm font-medium mb-2">Number Of Questions</label>
                 <input
@@ -123,7 +123,7 @@ const QuizGenerator = () => {
                     <span className="text-sm font-medium">Save quiz to database</span>
                 </label>
             </div>
-            
+
             {/*Submit button*/}
             <Button type="submit" variant="contained" disabled={isLoading}>
                 {isLoading ? 'Generating Quiz...' : 'Generate Quiz'}
