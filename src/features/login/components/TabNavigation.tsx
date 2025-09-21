@@ -8,7 +8,7 @@ export default function TabNavigation({ isSignIn, onTabChange }: TabNavigationPr
     <div className="flex mb-8">
       <button
         onClick={() => onTabChange(true)}
-        className={`flex-1 py-3 px-4 text-center font-medium transition-all duration-300 ${
+        className={`flex-1 py-3 px-4 text-center font-medium ${
           isSignIn
             ? 'text-white border-b-2 border-blue-500'
             : 'text-slate-400 hover:text-slate-300'
@@ -18,7 +18,7 @@ export default function TabNavigation({ isSignIn, onTabChange }: TabNavigationPr
       </button>
       <button
         onClick={() => onTabChange(false)}
-        className={`flex-1 py-3 px-4 text-center font-medium transition-all duration-300 ${
+        className={`flex-1 py-3 px-4 text-center font-medium ${
           !isSignIn
             ? 'text-white border-b-2 border-blue-500'
             : 'text-slate-400 hover:text-slate-300'

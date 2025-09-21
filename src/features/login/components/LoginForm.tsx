@@ -1,82 +1,94 @@
 "use client"
 import React, { useState } from 'react';
+import TabNavigation from './TabNavigation';
 import InputField from './InputField';
 import PasswordField from './PasswordField';
 import FormControls from './FormControlls';
 import ActionButton from './ActionButton';
 import Divider from './Divider';
+import FooterLinks from './FooterLinks';
 
 interface LoginFormProps {
-    onSubmit: (data: { email: string; password: string; keepLoggedIn: boolean; isSignIn: boolean }) => void;
-    onGoogleSignIn: () => void;
-    onForgotPassword: () => void;
-    onPrivacyClick?: () => void;
-    onTermsClick?: () => void;
-    onAboutClick?: () => void;
+  onSubmit: (data: { email: string; password: string; keepLoggedIn: boolean; isSignIn: boolean }) => void;
+  onGoogleSignIn: () => void;
+  onForgotPassword: () => void;
+  onPrivacyClick?: () => void;
+  onTermsClick?: () => void;
+  onAboutClick?: () => void;
 }
 
 export default function LoginForm({
-    onSubmit,
-    onGoogleSignIn,
-    onForgotPassword,
-    onPrivacyClick,
-    onTermsClick,
-    onAboutClick
+  onSubmit,
+  onGoogleSignIn,
+  onForgotPassword,
+  onPrivacyClick,
+  onTermsClick,
+  onAboutClick
 }: LoginFormProps) {
-    const [isSignIn, setIsSignIn] = useState(true);
-    const [showPassword, setShowPassword] = useState(false);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [keepLoggedIn, setKeepLoggedIn] = useState(false);
+  const [isSignIn, setIsSignIn] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [keepLoggedIn, setKeepLoggedIn] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSubmit({ email, password, keepLoggedIn, isSignIn });
-    };
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit({ email, password, keepLoggedIn, isSignIn });
+  };
 
-    return (
-        <div className="w-full lg:w-1/3 flex items-center justify-center p-8" style={{ backgroundColor: '#313A4B' }}>
-            <div className="w-full max-w-md">
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <InputField
-                        id="email"
-                        label="Your email"
-                        type="email"
-                        value={email}
-                        onChange={setEmail}
-                        placeholder="bob.888@gmail.com"
-                        required
-                    />
+  return (
+    <div className="w-full lg:w-1/3 flex items-center justify-center p-8" style={{ backgroundColor: '#313A4B' }}>
+      <div className="w-full max-w-md">
+        <TabNavigation 
+          isSignIn={isSignIn} 
+          onTabChange={setIsSignIn} 
+        />
 
-                    <PasswordField
-                        id="password"
-                        label="Your password"
-                        value={password}
-                        onChange={setPassword}
-                        placeholder="••••••••"
-                        showPassword={showPassword}
-                        onTogglePassword={() => setShowPassword(!showPassword)}
-                        required
-                    />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <InputField
+            id="email"
+            label="Your email"
+            type="email"
+            value={email}
+            onChange={setEmail}
+            placeholder="bob.888@gmail.com"
+            required
+          />
 
-                    <FormControls
-                        keepLoggedIn={keepLoggedIn}
-                        onKeepLoggedInChange={setKeepLoggedIn}
-                        onForgotPassword={onForgotPassword}
-                    />
+          <PasswordField
+            id="password"
+            label="Your password"
+            value={password}
+            onChange={setPassword}
+            placeholder="••••••••"
+            showPassword={showPassword}
+            onTogglePassword={() => setShowPassword(!showPassword)}
+            required
+          />
 
-                    <ActionButton type="submit">
-                        {isSignIn ? 'SIGN IN' : 'SIGN UP'}
-                    </ActionButton>
+          <FormControls
+            keepLoggedIn={keepLoggedIn}
+            onKeepLoggedInChange={setKeepLoggedIn}
+            onForgotPassword={onForgotPassword}
+          />
 
-                    <Divider text="OR" />
+          <ActionButton type="submit">
+            {isSignIn ? 'SIGN IN' : 'SIGN UP'}
+          </ActionButton>
 
-                    <ActionButton onClick={onGoogleSignIn}>
-                        SIGN IN WITH GOOGLE
-                    </ActionButton>
+          <Divider text="OR" />
 
-                </form>
-            </div>
-        </div>
-    );
+          <ActionButton onClick={onGoogleSignIn}>
+            SIGN IN WITH GOOGLE
+          </ActionButton>
+        </form>
+
+        <FooterLinks
+          onPrivacyClick={onPrivacyClick}
+          onTermsClick={onTermsClick}
+          onAboutClick={onAboutClick}
+        />
+      </div>
+    </div>
+  );
 }
